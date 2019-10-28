@@ -40,6 +40,7 @@ check_required_files_result() {
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
+    required_file "vendor/nxp/imx-p9.0.0_2.3.0.tar.gz"
     lunchconfig=evk_8mm-userdebug
     ;;
   # RENESAS R-Car M3 starter-kit
@@ -59,10 +60,17 @@ esac
 
 check_required_files_result
 
-# Continue with additional steps (apply patches etc.)
+# Continue with additional steps (Unpack, apply patches etc.)
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
+    cd ../aosp
+    pkg="../vendor/nxp/imx-p9.0.0_2.3.0.tar.gz"
+    echo "Unpacking $pkg"
+    # We need to strip off the unnecessary top level dir named "imx-p9.0.0_2.3.0/"
+    # This unpacks into aosp directory, and consequently aosp/vendor/nxp/...
+    tar --strip-components=1 -xf $pkg  
+    cd -
     ;;
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
