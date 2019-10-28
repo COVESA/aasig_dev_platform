@@ -1,0 +1,10 @@
+# Do not commit the downloaded Android source
+aosp/
+
+# These files are copied from bin into the docker directory during
+# container creation We want to ignore them for any further work.
+docker/*.sh
+
+# Repo is downloaded as part of the init script.  We do not want
+# it to be added to any commits.
+bin/repo
