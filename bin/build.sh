@@ -41,7 +41,7 @@ case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
     required_file "vendor/nxp/imx-p9.0.0_2.3.0.tar.gz"
-    lunchconfig=evk_8mm-userdebug
+    lunchconfig=mek_8q-userdebug
     ;;
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
