@@ -12,13 +12,12 @@ public class VSSService extends Service {
 
     @Override
     public void onCreate() {
-        // TODO
+        mVSSService = new IVSSServiceImpl(getApplicationContext());
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO
-        return null;
+        return mVSSService;
     }
 }

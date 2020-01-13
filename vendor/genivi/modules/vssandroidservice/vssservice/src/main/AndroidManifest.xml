@@ -1,6 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.genivi.vss.vssservice">
 
+    <permission
+        android:name="com.genivi.vss.vssservice.PERMISSION_GROUP_A"
+        android:protectionLevel="system|signature"
+        android:label="@string/vss_permission_group_a"
+        android:description="@string/vss_permission_group_a_desc" />
+
+    <permission
+        android:name="com.genivi.vss.vssservice.PERMISSION_GROUP_B"
+        android:protectionLevel="system|signature"
+        android:label="@string/vss_permission_group_b"
+        android:description="@string/vss_permission_group_b_desc" />
+
     <application
         android:allowBackup="true"
         android:persistent="true"
