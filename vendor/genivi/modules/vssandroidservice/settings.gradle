@@ -1,0 +1,2 @@
+include ':vssservice-client', ':vssservice-lib', ':vssservice'
+rootProject.name='VSS Android Service PoC'
