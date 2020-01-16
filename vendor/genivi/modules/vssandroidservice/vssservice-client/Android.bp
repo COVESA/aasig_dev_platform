@@ -1,0 +1,24 @@
+android_app {
+    name: "vssservice-client",
+    manifest: "src/main/AndroidManifest.xml",
+    privileged: true,
+    certificate: "platform",
+
+    srcs: [
+      "src/main/**/*.java",
+    ],
+
+    resource_dirs: [
+      "src/main/res",
+    ],
+
+    static_libs: [
+      "vssservice-lib",
+      "androidx.appcompat_appcompat",
+      "android-support-constraint-layout",
+    ],
+
+    optimize: {
+      enabled: false,
+    }
+}
