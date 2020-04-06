@@ -1,1 +1,2 @@
+include ':vss-sdk-lib'
 rootProject.name='VssAuthenticationService'
