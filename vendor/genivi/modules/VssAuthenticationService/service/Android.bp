@@ -1,0 +1,23 @@
+android_app {
+    name: "vss-authentication-service",
+    manifest: "src/main/AndroidManifest.xml",
+    privileged: true,
+    certificate: "platform",
+
+    srcs: [
+      "src/main/**/*.java",
+    ],
+
+    resource_dirs: [
+      "src/main/res"
+    ],
+
+    static_libs: [
+      "vss-sdk-lib",
+      "androidx.appcompat_appcompat"
+    ],
+
+    optimize: {
+      enabled: false,
+    }
+}

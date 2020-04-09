@@ -1,0 +1,24 @@
+android_app {
+    name: "vss-example-app",
+    manifest: "src/main/AndroidManifest.xml",
+    privileged: true,
+    certificate: "platform",
+
+    srcs: [
+      "src/main/**/*.java",
+    ],
+
+    resource_dirs: [
+      "src/main/res",
+    ],
+
+    static_libs: [
+      "vss-sdk-lib",
+      "androidx.appcompat_appcompat",
+      "android-support-constraint-layout",
+    ],
+
+    optimize: {
+      enabled: false,
+    }
+}

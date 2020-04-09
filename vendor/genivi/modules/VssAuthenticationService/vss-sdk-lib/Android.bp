@@ -1,0 +1,8 @@
+java_library {
+    name: "vss-sdk-lib",
+    manifest: "src/main/AndroidManifest.xml",
+    srcs: [
+      "src/**/*.java",
+      "src/**/I*.aidl",
+    ],
+}
