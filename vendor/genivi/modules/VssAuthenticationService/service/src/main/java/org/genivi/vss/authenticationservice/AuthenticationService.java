@@ -12,7 +12,7 @@ public class AuthenticationService extends Service {
 
     @Override
     public void onCreate() {
-        mAuthenticationService = new IAuthenticationServiceImpl();
+        mAuthenticationService = new IAuthenticationServiceImpl(getApplicationContext());
     }
     @Nullable
     @Override
