@@ -16,3 +16,10 @@ Branches:
 * **develop**  - Miscellaneous WIP before it is sent to master.  Warning: This branch is likely to be rebased and force-pushed at any time
 * **\<target\>** - Hardware/target specific branches might be used later on
 
+
+Hardware:
+---------
+
+The planned supported platforms are best seen on [this Wiki page](https://at.projects.genivi.org/wiki/display/DIRO/Android+development+platform).
+The scripts and directory structure should give the rest of the details of
+what is actually implemented.
