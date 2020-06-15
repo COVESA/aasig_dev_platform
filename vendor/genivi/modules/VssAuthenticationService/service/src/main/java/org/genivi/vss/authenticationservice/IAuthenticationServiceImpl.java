@@ -28,7 +28,7 @@ public class IAuthenticationServiceImpl extends IAuthenticationService.Stub {
     public String getAuthenticationToken() throws RemoteException {
         try {
             List<String> grantedPermissions = getGrantedPermissions();
-            Log.d(TAG, "Permissions: "Arrays.toString(new List[]{grantedPermissions}));
+            Log.d(TAG, "Permissions: " + Arrays.toString(new List[]{grantedPermissions}));
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
