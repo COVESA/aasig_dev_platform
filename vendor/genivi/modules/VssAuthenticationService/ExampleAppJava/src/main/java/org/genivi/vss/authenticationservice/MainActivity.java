@@ -3,7 +3,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package org.genivi.vss.authenticationservice;
+package org.genivi.vss.authenticationservice.example;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,6 +12,11 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.view.View;
+import android.widget.Button;
+
+import org.genivi.vss.authenticationservice.IAuthenticationService;
+import org.genivi.vss.authenticationservice.VSS;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,10 +40,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }, BIND_AUTO_CREATE);
 
-        // TODO connect "getAuthToken" to some controls
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getAuthToken();
+            }
+        });
     }
 
-    private String getAuthToken() throws RemoteException {
-        return mAuthenticationService.getAuthenticationToken();
+    private String getAuthToken() {
+        String authenticationToken = null;
+        try {
+            authenticationToken = mAuthenticationService.getAuthenticationToken();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return authenticationToken;
     }
 }

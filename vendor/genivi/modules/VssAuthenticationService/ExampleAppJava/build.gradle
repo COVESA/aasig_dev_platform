@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "org.genivi.vss.authenticationservice"
+        applicationId "org.genivi.vss.authenticationservice.example"
         minSdkVersion 28
         targetSdkVersion 28
         versionCode 1
