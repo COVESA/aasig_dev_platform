@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.genivi.vss.authenticationservice">
 
+    <permission
+        android:name="org.genivi.vss.permission.DUMMY_PROP_READ"
+        android:label="@string/dummy_permission_label"
+        android:description="@string/dummy_permission_description"
+        android:protectionLevel="normal" />
+
     <application
         android:allowBackup="true"
         android:persistent="true"
