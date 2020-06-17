@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }, BIND_AUTO_CREATE);
 
-        Button button = findViewById(R.id.button);
+        Button button = findViewById(R.id.btn_request_value);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
