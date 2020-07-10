@@ -12,8 +12,10 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import org.genivi.vss.authenticationservice.IAuthenticationService;
 import org.genivi.vss.authenticationservice.VSS;
@@ -21,11 +23,14 @@ import org.genivi.vss.authenticationservice.VSS;
 public class MainActivity extends AppCompatActivity {
 
     IAuthenticationService mAuthenticationService;
+    private TextView mLogTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mLogTextView = findViewById(R.id.tv_logs);
 
         // TODO Move this connection boilerplate to VSS-SDK since this code will be shared across the clients
         bindService(VSS.AUTHENTICATION_SERVICE_INTENT, new ServiceConnection() {
@@ -44,18 +49,20 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getAuthToken();
+                String token = getAuthenticationToken();
+                mLogTextView.append("Authentication token: " + token + "\n");
+                Log.d("VSS", "token: " + token);
             }
         });
     }
 
-    private String getAuthToken() {
-        String authenticationToken = null;
+    private String getAuthenticationToken() {
         try {
-            authenticationToken = mAuthenticationService.getAuthenticationToken();
+            String authenticationToken = mAuthenticationService.getAuthenticationToken();
+            return authenticationToken;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            mLogTextView.append("ERROR: Exception: " + e + "\n");
         }
-        return authenticationToken;
+        return null;
     }
 }

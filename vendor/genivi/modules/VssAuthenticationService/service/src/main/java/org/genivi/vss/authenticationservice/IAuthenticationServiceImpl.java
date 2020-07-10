@@ -12,9 +12,15 @@ import android.os.Binder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.Keys;
 
 public class IAuthenticationServiceImpl extends IAuthenticationService.Stub {
     private final static String TAG = IAuthenticationServiceImpl.class.getSimpleName();
@@ -26,14 +32,18 @@ public class IAuthenticationServiceImpl extends IAuthenticationService.Stub {
 
     @Override
     public String getAuthenticationToken() throws RemoteException {
+        List<String> grantedPermissions = null;
         try {
-            List<String> grantedPermissions = getGrantedPermissions();
+            grantedPermissions = getGrantedPermissions();
             Log.d(TAG, "Permissions: " + Arrays.toString(new List[]{grantedPermissions}));
+
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        // TODO Generate JWT with fetched permisions
-        return null;
+        Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        Log.d(TAG, "Key string: " + Encoders.BASE64.encode(key.getEncoded()));
+
+        return Jwts.builder().claim("genivi.org/vss:permissions", grantedPermissions).signWith(key).compact();
     }
 
     private List<String> getGrantedPermissions() throws PackageManager.NameNotFoundException {
