@@ -76,6 +76,9 @@ case $AASIGDP_TARGET in
     branch=
     export builddir=INVALID  # Not used here
     required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
+    # Link the unique build results path for convenience
+    rm build_result
+    ln -s "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/mydroid/out/target/product/kingfisher" "$PROJDIR/build_result"
     ;;
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
