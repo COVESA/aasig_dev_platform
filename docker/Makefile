@@ -16,10 +16,11 @@ fromscratch: clean buildnew run shell
 # Android source code tree, which seems to be treated as part of the
 # context to be considered by the docker daemon (whether used or not)
 build:
-	@if test -z "${AASIGDP_TARGET}"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
-	if test -n "${AASIGDP_TARGET}" ; then \
-	  cp -r ../bin/ . ; \
-	  docker build --build-arg AASIGDP_TARGET=${AASIGDP_TARGET} --tag=${IMAGE_NAME}:latest . \
+	@if test -z "$$AASIGDP_TARGET"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
+	if test -n "$$AASIGDP_TARGET" ; then \
+	  cp -r ../bin . ; \
+	  cp -r ../vendor/* vendor/ ; \
+	  docker build --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest . \
 	; fi
 
 _reset:
@@ -27,21 +28,18 @@ _reset:
 
 rebuild: _reset build
 
-buildnew: 
-	@if test -z "${AASIGDP_TARGET}"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
-	if test -n "${AASIGDP_TARGET}" ; then \
-	  cp -r ../bin/ . ; \
-	  docker build --no-cache --build-arg AASIGDP_TARGET=${AASIGDP_TARGET} --tag=${IMAGE_NAME}:latest . \
+buildnew:
+	@if test -z "$$AASIGDP_TARGET"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
+	if test -n "$$AASIGDP_TARGET" ; then \
+	  cp -r ../bin . ; \
+	  cp -r ../vendor/* vendor/ ; \
+	  docker build --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest . \
 	; fi
 
 run:
-	docker run -ti -h "${CONTAINER_HOSTNAME}" -d -v "${EXTERNAL_STORAGE}:/tmp/FIXME" --name=${CONTAINER_NAME} ${IMAGE_NAME}:latest /bin/bash
+	docker run -ti -h "${CONTAINER_HOSTNAME}" -d -v ${PWD}/..:/workdir -v "${EXTERNAL_STORAGE}:/tmp/FIXME" --name=${CONTAINER_NAME} ${IMAGE_NAME}:latest /bin/bash
 
-clean:
-	@echo "docker rm -f -v ${CONTAINER_NAME}"
-	@docker rm -f -v ${CONTAINER_NAME} >/dev/null || echo "Container removed already"
-	@echo docker rmi ${IMAGE_NAME}:latest 
-	@docker rmi ${IMAGE_NAME}:latest 2>/dev/null || echo "Image removed already"
+clean:  kill rm rmi
 
 logs:
 	docker logs -f ${CONTAINER_NAME}
@@ -50,11 +48,14 @@ shell:
 	docker exec -it ${CONTAINER_NAME} /bin/bash
 
 stop:
-	docker stop ${CONTAINER_NAME}
+	docker stop ${CONTAINER_NAME} || true
 
-kill:
 	docker kill ${CONTAINER_NAME} || echo "Cannot kill - probably not running"
 	docker rm ${CONTAINER_NAME} || echo "Container removed already"
 
 rm:
 	docker rm ${CONTAINER_NAME} || echo "Container removed already"
+	@docker kill ${CONTAINER_NAME} 2>/dev/null && echo killed || echo "Container seems stopped already"
+
+rmi:
+	@docker rmi ${IMAGE_NAME}:latest 2>/dev/null && echo removed image || echo "Image removed already"
