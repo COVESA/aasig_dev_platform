@@ -48,6 +48,7 @@ case $AASIGDP_TARGET in
     lunchconfig=TBD
     ;;
   hikey960)
+    lunchconfig=hikey960-userdebug
     ;;
   hikey970)
     echo UNTESTED
