@@ -1,9 +1,9 @@
-FROM ubuntu:19.04
+FROM ubuntu:18.04
 
 ARG AASIGDP_TARGET=hikey970
 
 RUN apt-get update
-RUN apt-get install -y build-essential zlibc git curl python gnupg vim-tiny
+RUN apt-get install -y build-essential zlibc git curl python3 gnupg vim-tiny libncurses5-dev
 
 # The file rebuild_marker can be modified to force a (non-cache) rebuild
 # but only from this point (e.g. avoiding the long apt-get commands)
