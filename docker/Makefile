@@ -15,8 +15,7 @@ default:
 build:
 	@if test -z "$$AASIGDP_TARGET"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
 	if test -n "$$AASIGDP_TARGET" ; then \
-	  cp ../bin/init*.sh . ; \
-	  cp ../bin/update*.sh . ;  \
+	  cp ../bin/*.sh . ; \
 	  docker build --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest . \
 	; fi
 
@@ -34,7 +33,7 @@ run:
 clean:
 	@echo "docker rm -v ${CONTAINER_NAME}"
 	@docker rm -v ${CONTAINER_NAME} >/dev/null || echo "Container removed already"
-	@echo docker rmi ${IMAGE_NAME}:latest 
+	@echo docker rmi ${IMAGE_NAME}:latest
 	@docker rmi ${IMAGE_NAME}:latest 2>/dev/null || echo "Image removed already"
 
 logs:
@@ -47,8 +46,8 @@ stop:
 	docker stop ${CONTAINER_NAME}
 
 kill:
-	docker kill ${CONTAINER_NAME}
-	docker rm ${CONTAINER_NAME}
+	docker kill ${CONTAINER_NAME} || echo "Cannot kill - probably not running"
+	docker rm ${CONTAINER_NAME} || echo "Container removed already"
 
 rm:
-	docker rm ${CONTAINER_NAME}
+	docker rm ${CONTAINER_NAME} || echo "Container removed already"
