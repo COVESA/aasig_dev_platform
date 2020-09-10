@@ -13,6 +13,10 @@ ADD rebuild_marker /tmp/dummy
 RUN mkdir -p /aasig_dev_platform/bin
 WORKDIR /aasig_dev_platform
 
+# To avoid issues with repo later on, we must define some name/email
+RUN git config --global user.name "AASIG DP Dockefile"
+RUN git config --global user.email "No-email"
+
 # Use files from local working dir instead (to ensure any local changes are
 # also tested)
 # NOTE! These files only exists after copying them from the working
