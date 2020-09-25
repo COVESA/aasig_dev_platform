@@ -100,5 +100,53 @@ lunch $lunchconfig
 make -j$((2*$(nproc)))
 set +x
 
+# Additional modifications:
+case $AASIGDP_TARGET in
+   hikey960)
+    # Replacing kernel with Android Generic Kernel Image (GKI), according to
+    # instructions: https://source.android.com/setup/build/devices  
+
+    set -x
+    cd "$builddir"
+    mkdir new_gki_kernel
+    cd new_gki_kernel
+
+    # Get source
+    # ../../bin/repo init -u https://android.googlesource.com/kernel/manifest -b android12-5.4  # <- No longer available!
+    ../../bin/repo init -u https://android.googlesource.com/kernel/manifest -b common-android-mainline
+
+    ../../bin/repo sync -j8 -c
+
+    # Compile
+    rm -rf out
+    BUILD_CONFIG=common/build.config.hikey960 build/build.sh
+
+    # Copy (replace) results from kernel build into Android source tree
+    cd ../device/linaro/hikey-kernel/hikey960/5.4 && rm -rf *
+    cp "$builddir/new_gki_kernel/out/android12-5.4/dist/*" .
+
+    # Concatenate dtb
+    cd ../device/linaro/hikey-kernel/hikey960/5.4
+    cat Image.gz hi3660-hikey960.dtb  >Image.gz-dtb
+
+    # Rebuild userspace with this
+    lunch hikey960-userdebug
+    make TARGET_KERNEL_USE=5.4 HIKEY_USES_GKI=true -j$((2*$(nproc)))
+
+    # Sanity check results
+    required_file "$builddir/device/linaro/hikey-kernel/hikey960/5.4/hi3660-hikey960.dtb"
+    required_file "$builddir/device/linaro/hikey-kernel/hikey960/5.4/Image.gz-dtb"
+    # NOTE: There are alternative instructions to instea download a prebuilt generic kernel.  For example:
+    #curl -L https://ci.android.com/builds/submitted/6814259/kernel_aarch64/latest/Image | gzip -c >Image.gz
+    # ... and then concatenate the DTB onto it, etc.
+    ;;
+ 
+    hikey970) # Same?
+    ;;
+
+    # For all others, nothing more to do
+    *)
+    ;;
+esac
 
 echo ANDROID BUILD DONE

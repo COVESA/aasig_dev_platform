@@ -57,10 +57,18 @@ case $AASIGDP_TARGET in
     manifest=TBD
     ;;
   hikey960)
+    # According to: https://source.android.com/setup/build/devices (Checked 2020-09)
+    url=https://android.googlesource.com/platform/manifest
+    branch=master
+    manifest=""  # (use default)
+    flags=
     ;;
   hikey970)
     echo UNTESTED
-    manifest=""
+    # According to https://github.com/96boards/documentation/wiki
+    url=https://android.googlesource.com/platform/manifest
+    branch=android-9.0.0_r8
+    flags="--no-repo-verify --repo-branch=stable"
     ;;
   *)
     fail_target
@@ -122,9 +130,13 @@ case $AASIGDP_TARGET in
   m3ulcb)
     ;;
   hikey960)
+    ../bin/repo sync
     ;;
   hikey970)
+    # According to https://github.com/96boards/documentation/wiki
+    # We should install local manifest from github before repo sync
     git clone https://github.com/96boards-hikey/android-manifest.git -b hikey970_v1.0 .repo/local_manifests
+    ../bin/repo sync
     ;;
   *)
     echo UNEXPECTED  # We should never reach this
