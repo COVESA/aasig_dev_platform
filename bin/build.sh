@@ -7,8 +7,6 @@ MYDIR="$PWD"
 # Defaults
 lunchconfig=hikey960-userdebug
 
-failed_prereqs=
-
 # Helper functiosn
 fail_target() {
   echo "Unknown target ($AASIGDP_TARGET).  Please make sure variable \$AASIGDP_TARGET is set to a known value."
@@ -36,6 +34,7 @@ check_required_files_result() {
   fi
 }
 
+failed_prereqs=
 # Set up any unique for initial repo init (or fail early if target not defined)
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
@@ -62,6 +61,7 @@ esac
 check_required_files_result
 
 # Continue with additional steps (Unpack, apply patches etc.)
+failed_prereqs=
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
@@ -85,6 +85,8 @@ case $AASIGDP_TARGET in
     ;;
 esac
 
+check_required_files_result
+
 cd ../aosp
 
 # Set up and build
@@ -98,3 +100,5 @@ lunch $lunchconfig
 make -j$((2*$(nproc)))
 set +x
 
+
+echo ANDROID BUILD DONE

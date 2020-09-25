@@ -1,12 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 # Start from bin dir
 cd "$(dirname "$0")"
 
+# Default
+builddir="$PWD/../aosp"
+
 # Defaults
-url=https://android.googlesource.com/platform/manifest
-branch=master
-manifest=""
+
+#PROJDIR=/workdir
+PROJDIR=$PWD/..
 
 # According to https://source.android.com/setup/build/downloading
 REPO_SHA=d06f33115aea44e583c8669375b35aad397176a411de3461897444d247b6c220
@@ -17,6 +20,27 @@ fail_target() {
     exit 1
 }
 
+required_file() {
+  local d="$PWD"
+  cd "$PROJDIR"  # files specified relative to root of project
+  if [ -f "$1" ] ; then
+    echo "Found: $1"
+  else
+    failed_prereqs="$1 $failed_prereqs"
+  fi
+  cd "$d"
+}
+
+check_required_files_result() {
+  if [ -n "$failed_prereqs" ] ; then
+    echo "To continue, the following vendor specific files must be provided.   Please consult the documentation/README for how to get them"
+    echo " --> $failed_prereqs"
+    exit 2
+  else
+    echo "Seems OK"
+  fi
+}
+
 # Set up any unique for initial repo init (or fail early if target not defined)
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
@@ -24,6 +48,9 @@ case $AASIGDP_TARGET in
     manifest="-m imx-p9.0.0_2.3.0.xml"
     url=https://source.codeaurora.org/external/imx/imx-manifest.git
     branch=imx-android-pie
+    flags=
+    ;;
+
     ;;
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
@@ -40,6 +67,9 @@ case $AASIGDP_TARGET in
     ;;
 esac
 
+check_required_files_result
+failed_prereqs=
+
 curl https://storage.googleapis.com/git-repo-downloads/repo > ./repo
 chmod a+x ./repo
 
@@ -52,18 +82,27 @@ if [ "$(sha256sum ./repo | cut -c 1-64)" != "$REPO_SHA" ] ; then
   echo "You might check https://source.android.com/setup/build/downloading for update"
 fi
 
-echo "For git configuration, please provide name and email."
-echo "(This will ONLY be stored in project-local git config variables:"
-echo "user.name and user.email)"
-read -p "Full name : " name
-read -p "Email: " email
-git config --global user.name "$name"
-git config --global user.email "$email"
-cd ../aosp
+git config user.name 2>/dev/null
+# failed?  If so, configure the username 
+if [ $? -ne 0 ] ; then
+   echo "A git user name and email must be configured for later build steps"
+   echo "You seem to be running outside of container, because the container should have it configured already."
+   echo "Therefore, please note that what you provide here will be stored in the global git settings (in your home directory!)"
+   read -p "Name:"  name
+   read -p "Email:" email
 
+   git config --global user.name  "$name"
+   git config --global user.email "$email"
+fi
 
 set -x
-../bin/repo init -u $url -b $branch $manifest
+cd "$builddir"
+
+if [ -n "$url" ] ; then
+   ../bin/repo init -u $url -b $branch $manifest $flags
+else
+   echo "Repo url is unset => no init at this time"
+fi
 set +x
 
 # Update repo command from local copy to avoid nagging warnings
@@ -74,6 +113,7 @@ cp .repo/repo/repo ../bin/repo
 chmod 755 ../bin/repo
 
 # Continue with additional steps for init
+cd "$builddir"  # (later changed for special targets like Renesas)
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
