@@ -5,6 +5,9 @@ EXTERNAL_STORAGE = /optional/host/volume/here
 
 default:
 	@echo "make [build|buildnew|run|clean|logs|shell|stop|kill|rm]"
+	@echo "(Note: build means only to build the container, not to start the android build)"
+
+fromscratch: clean buildnew run shell
 
 # Use local working directory as input (to get local changes)
 # However, this requires files to be ADDed to exist within the docker
@@ -25,15 +28,19 @@ _reset:
 rebuild: _reset build
 
 buildnew:
-	docker build --no-cache --tag=${IMAGE_NAME}:latest .
+	@if test -z "$$AASIGDP_TARGET"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
+	if test -n "$$AASIGDP_TARGET" ; then \
+	  cp ../bin/*.sh . ; \
+	  docker build --no-cache --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest . \
+	; fi
 
 run:
 	docker run -ti -h "${CONTAINER_HOSTNAME}" -d -v "${EXTERNAL_STORAGE}:/tmp/FIXME" --name=${CONTAINER_NAME} ${IMAGE_NAME}:latest /bin/bash
 
 clean:
-	@echo "docker rm -v ${CONTAINER_NAME}"
-	@docker rm -v ${CONTAINER_NAME} >/dev/null || echo "Container removed already"
-	@echo docker rmi ${IMAGE_NAME}:latest
+	@echo "docker rm -f -v ${CONTAINER_NAME}"
+	@docker rm -f -v ${CONTAINER_NAME} >/dev/null || echo "Container removed already"
+	@echo docker rmi ${IMAGE_NAME}:latest 
 	@docker rmi ${IMAGE_NAME}:latest 2>/dev/null || echo "Image removed already"
 
 logs:
