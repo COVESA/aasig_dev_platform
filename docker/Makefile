@@ -16,10 +16,10 @@ fromscratch: clean buildnew run shell
 # Android source code tree, which seems to be treated as part of the
 # context to be considered by the docker daemon (whether used or not)
 build:
-	@if test -z "$$AASIGDP_TARGET"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
-	if test -n "$$AASIGDP_TARGET" ; then \
-	  cp ../bin/*.sh . ; \
-	  docker build --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest . \
+	@if test -z "${AASIGDP_TARGET}"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
+	if test -n "${AASIGDP_TARGET}" ; then \
+	  cp -r ../bin/ . ; \
+	  docker build --build-arg AASIGDP_TARGET=${AASIGDP_TARGET} --tag=${IMAGE_NAME}:latest . \
 	; fi
 
 _reset:
@@ -27,11 +27,11 @@ _reset:
 
 rebuild: _reset build
 
-buildnew:
-	@if test -z "$$AASIGDP_TARGET"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
-	if test -n "$$AASIGDP_TARGET" ; then \
-	  cp ../bin/*.sh . ; \
-	  docker build --no-cache --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest . \
+buildnew: 
+	@if test -z "${AASIGDP_TARGET}"; then echo "Please define \$$AASIGDP_TARGET first" ; fi;
+	if test -n "${AASIGDP_TARGET}" ; then \
+	  cp -r ../bin/ . ; \
+	  docker build --no-cache --build-arg AASIGDP_TARGET=${AASIGDP_TARGET} --tag=${IMAGE_NAME}:latest . \
 	; fi
 
 run:

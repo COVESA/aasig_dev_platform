@@ -1,10 +1,17 @@
 # Do not commit the downloaded Android source
 aosp/
 
-# These files are copied from bin into the docker directory during
-# container creation We want to ignore them for any further work.
+# Some files are copied from the repo into the docker directory during
+# container creation.  Docker requires the "environment" (i.e. the same dir)
+# to include any files that are to be copied into the container image.
+# We want to ignore them for any further work.
 docker/*.sh
+docker/bin
+docker/vendor
 
 # Repo is downloaded as part of the init script.  We do not want
 # it to be added to any commits.
 bin/repo
+
+# This is a local "dummy" file, should not be updated
+docker/rebuild_marker

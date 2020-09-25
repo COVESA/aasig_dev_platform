@@ -3,7 +3,10 @@ FROM ubuntu:18.04
 ARG AASIGDP_TARGET=hikey970
 
 RUN apt-get update
-RUN apt-get install -y build-essential zlibc git curl python3 gnupg vim-tiny libncurses5-dev
+RUN apt-get install -y build-essential zlibc git curl python3 gnupg vim-tiny libncurses5-dev unzip
+
+# Make sure /usr/bin/python actually means python3
+RUN cd /usr/bin && rm -f python && ln -s python3 python
 
 # The file rebuild_marker can be modified to force a (non-cache) rebuild
 # but only from this point (e.g. avoiding the long apt-get commands)
@@ -22,9 +25,13 @@ RUN git config --global user.email "No-email"
 # NOTE! These files only exists after copying them from the working
 # directory.  This will be done if the container is built using the
 # Makefile.
-ADD init*.sh bin/
-ADD update*.sh bin/
+ADD bin/*.sh bin/
 
+# To avoid issues with repo later on
+RUN git config --global user.name "AASIG DP Dockefile"
+RUN git config --global user.email "No-email"
+
+RUN ls -lR
 RUN mkdir aosp
 RUN bin/init.sh
 CMD bash
