@@ -11,6 +11,9 @@ builddir="$PWD/../aosp"
 #PROJDIR=/workdir
 PROJDIR=$PWD/..
 
+#PROJDIR=/workdir
+PROJDIR=$PWD/..
+
 # According to https://source.android.com/setup/build/downloading
 REPO_SHA=d06f33115aea44e583c8669375b35aad397176a411de3461897444d247b6c220
 
@@ -64,10 +67,19 @@ case $AASIGDP_TARGET in
     rm build_result
     ln -s "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/mydroid/out/target/product/kingfisher" "$PROJDIR/build_result"
     ;;
+
+  # RENESAS R-Car H3 starter-kit
+  h3ulcb)
+    # This is all controlled by the provided RENESAS scripts
+    manifest=
+    url=
+    branch=
+    export builddir=INVALID  # Not used here
+    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
+    ;;
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
     manifest=TBD
-    flags=
     export TARGET_BOARD_PLATFORM=r8a7796
     ;;
   # (M3N: TARGET_BOARD_PLATFORM=r8a77965)
@@ -122,7 +134,8 @@ set -x
 cd "$builddir"
 
 if [ -n "$url" ] ; then
-   ../bin/repo init -u $url -b $branch $manifest $flags
+   cd "$PROJDIR"
+   bin/repo init -u $url -b $branch $manifest
 else
    echo "Repo url is unset => no init at this time"
 fi
