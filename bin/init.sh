@@ -15,7 +15,7 @@ PROJDIR=$PWD/..
 PROJDIR=$PWD/..
 
 # According to https://source.android.com/setup/build/downloading
-REPO_SHA=d06f33115aea44e583c8669375b35aad397176a411de3461897444d247b6c220
+REPO_SHA=d73f3885d717c1dc89eba0563433cec787486a0089b9b04b4e8c56e7c07c7610
 
 # Helper functiosn
 fail_target() {
@@ -77,7 +77,7 @@ case $AASIGDP_TARGET in
     export builddir=INVALID  # Not used here
     required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     # Link the unique build results path for convenience
-    rm build_result
+    rm -f build_result  # (if exists)
     ln -s "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/mydroid/out/target/product/kingfisher" "$PROJDIR/build_result"
     ;;
   # RENESAS R-Car M3 starter-kit
@@ -108,11 +108,11 @@ esac
 check_required_files_result
 failed_prereqs=
 
+cd "$PROJDIR/bin"
 curl https://storage.googleapis.com/git-repo-downloads/repo > ./repo
 chmod a+x ./repo
 
 sha256sum </dev/null >/dev/null || echo "Could not run sha256sum??"
-
 if [ "$(sha256sum ./repo | cut -c 1-64)" != "$REPO_SHA" ] ; then
   echo "Hash mismatch -> repo version was updated?  Check it before running..."
   echo "Expected: $REPO_HASH"
@@ -139,18 +139,20 @@ cd "$builddir"
 if [ -n "$url" ] ; then
    cd "$PROJDIR"
    bin/repo init -u $url -b $branch $manifest
+
+   # After repo init there will be a new(er) repo version in .repo/ ...
+   # Update repo command from this local copy to avoid nagging warnings
+   # (Note, on some platforms using SELinux, manipulating binaries
+   # like this might possibly fail)
+   if [ -f .repo/repo/repo ] ; then
+      echo "Copying locally initialized repo command to $(readlink -f ../bin/) to make sure it is up to date."
+      cp .repo/repo/repo ../bin/repo
+      chmod 755 ../bin/repo
+   fi
 else
    echo "Repo url is unset => no init at this time"
 fi
 set +x
-
-# Update repo command from local copy to avoid nagging warnings
-#(Note, on some platforms using SELinux, manipulating binaries
-# like this might possibly fail)
-echo "Copying locally initialized repo command to $(readlink -f ../bin/) to make sure it is up to date."
-cp .repo/repo/repo ../bin/repo
-chmod 755 ../bin/repo
-
 
 # Continue with additional steps for init
 cd "$builddir"  # (later changed for special targets like Renesas)
