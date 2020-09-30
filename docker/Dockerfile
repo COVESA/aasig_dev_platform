@@ -1,11 +1,8 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 RUN apt-get update
-RUN apt-get install -y build-essential zlibc git curl python-wand python-crypto gnupg vim-tiny libncurses5-dev unzip liblz4-tool \
-                       wget m4 ccache flex bison zip bc
-
-# Make sure /usr/bin/python actually means python3
-RUN cd /usr/bin && rm -f python && ln -s python3 python
+RUN apt-get install -y build-essential zlibc git curl python-wand python-crypto gnupg vim-tiny libncurses5-dev \
+                       unzip liblz4-tool wget m4 ccache flex bison zip bc
 
 # The file rebuild_marker can be modified to force a (non-cache) rebuild
 # but only from this point (e.g. avoiding the long apt-get commands)
