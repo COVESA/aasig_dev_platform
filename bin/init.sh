@@ -3,9 +3,6 @@
 # Start from bin dir
 cd "$(dirname "$0")"
 
-# Default
-builddir="$PWD/../aosp"
-
 # Defaults
 
 #PROJDIR=/workdir
@@ -61,7 +58,6 @@ case $AASIGDP_TARGET in
     url=
     branch=
     flags=
-    export builddir=INVALID  # Not used here
     required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     # Link the unique build results path for convenience
     rm -f build_result  # (if exists)
@@ -124,9 +120,6 @@ if [ $? -ne 0 ] ; then
    git config --global user.email "$email"
 fi
 
-set -x
-cd "$builddir"
-
 if [ -n "$url" ] ; then
    cd "$PROJDIR"
    bin/repo init -u $url -b $branch $manifest
@@ -143,10 +136,9 @@ if [ -n "$url" ] ; then
 else
    echo "Repo url is unset => no init at this time"
 fi
-set +x
 
 # Continue with additional steps for init
-cd "$builddir"  # (later changed for special targets like Renesas)
+cd "$PROJDIR"
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
@@ -202,7 +194,6 @@ case $AASIGDP_TARGET in
     cd RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/
     rm -rf pkgs_dir
     mkdir pkgs_dir
-set -x
     mv $PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/{omx,adsp,gfx} pkgs_dir/
 
     ls pkgs_dir
