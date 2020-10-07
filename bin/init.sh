@@ -14,6 +14,13 @@ PROJDIR=$PWD/..
 # According to https://source.android.com/setup/build/downloading
 REPO_SHA=d73f3885d717c1dc89eba0563433cec787486a0089b9b04b4e8c56e7c07c7610
 
+# LOG helpers
+section() {
+  echo '========================================================================='
+  echo "build.sh, Section: $1"
+  echo '========================================================================='
+}
+
 # Helper functiosn
 fail_target() {
     echo "Unknown target ($AASIGDP_TARGET).  Please make sure variable \$AASIGDP_TARGET is set to a known value."
@@ -45,6 +52,7 @@ check_required_files_result() {
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
+    section "Set repo manifest, url, branch, flags ($AASIGDP_TARGET)"
     manifest="-m imx-p9.0.0_2.3.0.xml"
     url=https://source.codeaurora.org/external/imx/imx-manifest.git
     branch=imx-android-pie
@@ -53,25 +61,31 @@ case $AASIGDP_TARGET in
 
   # RENESAS R-Car H3 starter-kit
   h3ulcb)
+    section "Unset manifest/url/branch/flags ($AASIGDP_TARGET) because it is handled by delegate scripts"
     # This is all controlled by the provided RENESAS scripts
     manifest=
     url=
     branch=
     flags=
+    section "Check main BSP file exists ($AASIGDP_TARGET)"
     required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     # Link the unique build results path for convenience
+    section "Create build_result symlink ($AASIGDP_TARGET)"
     rm -f build_result  # (if exists)
     ln -s "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/mydroid/out/target/product/kingfisher" "$PROJDIR/build_result"
     ;;
 
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
+    section "TBD ($AASIGDP_TARGET)"
+    # This is all controlled by the provided RENESAS scripts
     manifest=TBD
     export TARGET_BOARD_PLATFORM=r8a7796
     # (M3N: TARGET_BOARD_PLATFORM=r8a77965)
     ;;
 
   hikey960)
+    section "TBD ($AASIGDP_TARGET)"
     # According to: https://source.android.com/setup/build/devices (Checked 2020-09)
     url=https://android.googlesource.com/platform/manifest
     branch=master
@@ -80,6 +94,7 @@ case $AASIGDP_TARGET in
     ;;
 
   hikey970)
+    section "TBD ($AASIGDP_TARGET)"
     echo UNTESTED
     # According to https://github.com/96boards/documentation/wiki
     url=https://android.googlesource.com/platform/manifest
@@ -88,6 +103,7 @@ case $AASIGDP_TARGET in
     ;;
 
   *)
+    section "*** ERROR ***"
     fail_target
     ;;
 esac
@@ -95,6 +111,7 @@ esac
 check_required_files_result
 failed_prereqs=
 
+section "Get & check initial repo binary from Google"
 cd "$PROJDIR/bin"
 curl https://storage.googleapis.com/git-repo-downloads/repo > ./repo
 chmod a+x ./repo
@@ -107,8 +124,9 @@ if [ "$(sha256sum ./repo | cut -c 1-64)" != "$REPO_SHA" ] ; then
   echo "You might check https://source.android.com/setup/build/downloading for update"
 fi
 
+section "git config user name/email"
 git config user.name 2>/dev/null
-# failed?  If so, configure the username 
+# failed?  If so, configure the username
 if [ $? -ne 0 ] ; then
    echo "A git user name and email must be configured for later build steps"
    echo "You seem to be running outside of container, because the container should have it configured already."
@@ -120,6 +138,7 @@ if [ $? -ne 0 ] ; then
    git config --global user.email "$email"
 fi
 
+section "repo init"
 if [ -n "$url" ] ; then
    cd "$PROJDIR"
    bin/repo init -u $url -b $branch $manifest
@@ -145,6 +164,7 @@ case $AASIGDP_TARGET in
     ;;
   # RENESAS R-Car H3 starter-kit
   h3ulcb)
+  section "Unpack and check all BSP files ($AASIGDP_TARGET)"
     cd $PROJDIR/vendor/renesas
     pkg="REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     echo "Unpacking $pkg"
@@ -190,14 +210,16 @@ case $AASIGDP_TARGET in
     echo "Unzipping inner package: $pkg"
     unzip -u "$pkg"
 
+    section "Restructure files into pkgs_dir according to instructions"
     # Restructure according to the instructions of the Renesas documentation:
     cd RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/
     rm -rf pkgs_dir
     mkdir pkgs_dir
     mv $PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/{omx,adsp,gfx} pkgs_dir/
 
+    echo "RENESAS: Source code fetching (repo sync) will be done in build script"
+    section "Results of pkgs_dir ($PWD/pkgs_dir)"
     ls pkgs_dir
-    echo "RENESAS: Additional unpacking will be done in build script"
     cd -
 
     ;;
@@ -205,16 +227,18 @@ case $AASIGDP_TARGET in
   m3ulcb)
     ;;
   hikey960)
+    section "Repo Sync ($AASIGDP_TARGET)"
     ../bin/repo sync
     ;;
   hikey970)
+    section "Repo Sync ($AASIGDP_TARGET)"
     # According to https://github.com/96boards/documentation/wiki
     # We should install local manifest from github before repo sync
     git clone https://github.com/96boards-hikey/android-manifest.git -b hikey970_v1.0 .repo/local_manifests
     ../bin/repo sync
     ;;
   *)
-    echo UNEXPECTED  # We should never reach this
+    section "UNEXPECTED TARGET ERROR"  # We should never reach this
     ;;
 esac
 

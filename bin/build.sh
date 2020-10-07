@@ -8,6 +8,13 @@ PROJDIR="$MYDIR/.."
 # Defaults
 lunchconfig=hikey960-userdebug
 
+# LOG helpers
+section() {
+  echo '========================================================================='
+  echo "build.sh, Section: $1"
+  echo '========================================================================='
+}
+
 # Helper functiosn
 fail_target() {
   echo "Unknown target ($AASIGDP_TARGET).  Please make sure variable \$AASIGDP_TARGET is set to a known value."
@@ -40,11 +47,13 @@ failed_prereqs=
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
+    section "Check prereq files again ($AASIGDP_TARGET)"
     required_file "vendor/nxp/imx-p9.0.0_2.3.0.tar.gz"
     lunchconfig=mek_8q-userdebug
     ;;
   # RENESAS R-Car M3 starter-kit
   h3ulcb)
+    section "Set lunchconfig and env variables ($AASIGDP_TARGET)"
     required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     lunchconfig=kingfisher-userdebug
 
@@ -57,12 +66,15 @@ case $AASIGDP_TARGET in
 
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
+    section "Set lunchconfig ($AASIGDP_TARGET)"
     lunchconfig=TBD
     ;;
   hikey960)
+    section "Set lunchconfig ($AASIGDP_TARGET)"
     lunchconfig=hikey960-userdebug
     ;;
   hikey970)
+    section "Set lunchconfig ($AASIGDP_TARGET)"
     echo UNTESTED
     lunchconfig=hikey970-userdebug
     ;;
@@ -81,6 +93,7 @@ failed_prereqs=
 case $AASIGDP_TARGET in
   # NXP i.mx8 (e.g. EVK board)
   imx8)
+    section "Unpacking vendor files ($AASIGDP_TARGET)"
     cd ../aosp
     pkg="../vendor/nxp/imx-p9.0.0_2.3.0.tar.gz"
     echo "Unpacking $pkg"
@@ -91,6 +104,7 @@ case $AASIGDP_TARGET in
     ;;
   # RENESAS R-Car H3 starter-kit
   h3ulcb)
+    section "Re-check all prerequisite files ($AASIGDP_TARGET)"
 
     pkg="../vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     pkg="REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
@@ -163,18 +177,22 @@ pwd
 
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
+    section "(EMPTY) Re-check all prerequisite files ($AASIGDP_TARGET)"
     echo
     echo "PLEASE IMPLEMENT $AASIGDP_TARGET in $0"
     ;;
   hikey960)
+    section "(EMPTY) Re-check all prerequisite files ($AASIGDP_TARGET)"
     echo
     echo "PLEASE IMPLEMENT $AASIGDP_TARGET in $0"
     ;;
   hikey970)
+    section "(EMPTY) Re-check all prerequisite files ($AASIGDP_TARGET)"
     echo
     echo "PLEASE IMPLEMENT $AASIGDP_TARGET in $0"
     ;;
   *)
+    section "*** ERROR ***"
     echo
     echo UNEXPECTED VALUE for AASIGDP_TARGET # We should never reach this
     ;;
@@ -184,13 +202,15 @@ check_required_files_result
 
 # Set up and build
 # Not using -x flag because it lists everything in the called
-# scripts as well (envesetup, lunch, ... they are all scripts)
+# scripts as well (envsetup, lunch, ... they are all scripts)
 # Renesas unpack script
 echo builddir is $builddir
 cd "$builddir"
+section "envsetup.sh"
 echo '+ source ./build/envsetup.sh'
 source ./build/envsetup.sh
 set -x
+section "lunch"
 lunch "$lunchconfig" && make -j$((2*$(nproc)))
 r=$?
 set +x
@@ -198,6 +218,7 @@ set +x
 # Additional modifications:
 case $AASIGDP_TARGET in
    hikey960)
+     section "Post-build modifications $(AASIGDP_TARGET) -- new kernel"
     # Replacing kernel with Android Generic Kernel Image (GKI), according to
     # instructions: https://source.android.com/setup/build/devices  
 
@@ -244,5 +265,6 @@ case $AASIGDP_TARGET in
     ;;
 esac
 
+section "Done.  Return code is $r"
 echo ANDROID BUILD DONE
 exit $r
