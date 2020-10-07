@@ -15,3 +15,8 @@ bin/repo
 
 # This is a local "dummy" file, should not be updated
 docker/rebuild_marker
+
+# BSP files are normally added as local files (not in repository)
+vendor/renesas
+vendor/nxp
+vendor/hikey
