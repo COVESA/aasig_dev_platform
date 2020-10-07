@@ -168,7 +168,7 @@ case $AASIGDP_TARGET in
     cd $PROJDIR/vendor/renesas
     pkg="REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     echo "Unpacking $pkg"
-    unzip -u "$pkg"
+    unzip -o "$pkg"
 
     # Sanity check results:
 
@@ -208,14 +208,17 @@ case $AASIGDP_TARGET in
     cd "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp"
     pkg="RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
     echo "Unzipping inner package: $pkg"
-    unzip -u "$pkg"
+    unzip -o "$pkg"
 
     section "Restructure files into pkgs_dir according to instructions"
     # Restructure according to the instructions of the Renesas documentation:
-    cd RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/
+    cd RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E || {
+       echo failed to cd to RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E
+       exit 4
+    }
     rm -rf pkgs_dir
     mkdir pkgs_dir
-    mv $PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/{omx,adsp,gfx} pkgs_dir/
+    mv -f $PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/{omx,adsp,gfx} pkgs_dir/
 
     echo "RENESAS: Source code fetching (repo sync) will be done in build script"
     section "Results of pkgs_dir ($PWD/pkgs_dir)"

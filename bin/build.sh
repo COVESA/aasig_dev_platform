@@ -36,6 +36,7 @@ check_required_files_result() {
   if [ -n "$failed_prereqs" ] ; then
     echo "To continue, the following vendor specific files must be provided.   Please consult the documentation/README for how to get them"
     echo " --> $failed_prereqs"
+    ls -lR "$PROJDIR/vendor"
     exit 2
   else
     echo "Seems OK"
@@ -54,6 +55,7 @@ case $AASIGDP_TARGET in
   # RENESAS R-Car M3 starter-kit
   h3ulcb)
     section "Set lunchconfig and env variables ($AASIGDP_TARGET)"
+    # This was checked in init, but no harm checking again (fail early)
     required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
     lunchconfig=kingfisher-userdebug
 
@@ -105,74 +107,51 @@ case $AASIGDP_TARGET in
   # RENESAS R-Car H3 starter-kit
   h3ulcb)
     section "Re-check all prerequisite files ($AASIGDP_TARGET)"
+    cd "$PROJDIR"
+    # Sanity check prerequisites:
 
-    pkg="../vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
-    pkg="REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
-    echo "Unpacking $pkg"
-    cd "$PROJDIR/vendor/renesas"
-    unzip -u $pkg
+    # Inner package should be unzipped already:
+    # pkg="RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
 
-    # Sanity check results:
-
-    # For H3:
+    # For H3, a few checks of unpacked files...
     failed_prereqs=
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/gfx/RCH3G001A9001ZDO_1_1_0.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/gfx/RTM0RC7795GQGG0001SA90C_1_1_0.zip"
+    outer_zip_dir="vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3"
+    required_file "$outer_zip_dir/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
+
+    # ... but those files should also already be copied to pkgs_dir by init script
+    inner_zip_dir="$outer_zip_dir/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E"
+    pkgs_dir="$inner_zip_dir/pkgs_dir"
+
+    required_file "$pkgs_dir/gfx/RCH3G001A9001ZDO_1_1_0.zip"
+    required_file "$pkgs_dir/gfx/RTM0RC7795GQGG0001SA90C_1_1_0.zip"
+    required_file "$pkgs_dir/omx/RTM0AC0000XVVP8E30SA90C_3_0_19.zip"
     # For M3: RCM3G001A9001ZDO_1_1_0.zip
     # For M3: RTM0RC7796GQGG0001SA90C_1_1_0.zip
     # For M3N: RCN3G001A9001ZDO_1_1_0.zip
     # For M3N: RTM0RC7796GQGGB001SA90C_1_1_0.zip
-
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHFWN0203ZDP_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHIFA9001ZDP_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHPDA9001ZDO_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHPLN0203ZDO_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RCG3VUDRA9001ZDO_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XCMCTL30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV263D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV264D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV264E30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV265D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVCMND30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVCMNE30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVM4VD30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVVP8D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVVP8E30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVVP9D30SA90C_3_0_19.zip"
+    required_file "$pkgs_dir/adsp/RCG3AHFWN0203ZDP_1_0_16.zip"
+    required_file "$pkgs_dir/adsp/RCG3AHIFA9001ZDP_1_0_16.zip"
+    required_file "$pkgs_dir/adsp/RCG3AHPDA9001ZDO_1_0_16.zip"
+    required_file "$pkgs_dir/adsp/RCG3AHPLN0203ZDO_1_0_16.zip"
+    required_file "$pkgs_dir/omx/RCG3VUDRA9001ZDO_3_0_19.zip"
+    required_file "$pkgs_dir/omx/RTM0AC0000XCMCTL30SA90C_3_0_19.zip"
+    required_file "$pkgs_dir/omx/RTM0AC0000XV263D30SA90C_3_0_19.zip"
+    required_file "$pkgs_dir/omx/RTM0AC0000XV264D30SA90C_3_0_19.zip"
+    required_file "$pkgs_dir/omx/RTM0AC0000XV264E30SA90C_3_0_19.zip"
+    required_file "$pkgs_dir/omx/RTM0AC0000XV265D30SA90C_3_0_19.zip"
 
     check_required_files_result
     failed_prereqs=
 
-    cd "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp"
-    #rm -rf RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E
-    unzip -ou "RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
+    cd "$inner_zip_dir"
+    builddir="$inner_zip_dir/mydroid" # Will be created by walkthrough
 
-    # Restructure according to the instructions of the Renesas documentation:
-    cd RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E || {
-       echo failed to cd to RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E
-       exit 4
-    }
-    mkdir -p pkgs_dir
-    mv -f $PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/{omx,adsp,gfx} pkgs_dir/
-    ls pkgs_dir
-
-    # Renesas unpack script
-echo CWD is 
-pwd
-
-    export workdir="$PWD"
-    builddir="$workdir/mydroid"
-    
-    # RENESAS buildenv script fails silently if mydroid already exists
-    # (for example if we end up running the build twice)
-    # Let's fix that.
+    # RENESAS' buildenv script fails silently if mydroid already exists
+    # (for example if we run the build twice) Let's fix that.
     sed -i 's/mkdir/mkdir -p/' ./buildenv.sh
 
     export PATH="$PATH:$PROJDIR/bin"  # to find repo
     ./walkthrough.sh H3
-    cd -
-
     ;;
 
   # RENESAS R-Car M3 starter-kit
