@@ -186,8 +186,7 @@ check_required_files_result
 echo builddir is $builddir
 cd "$builddir"
 section "envsetup.sh"
-echo '+ source ./build/envsetup.sh'
-source ./build/envsetup.sh
+. build/envsetup.sh
 set -x
 section "lunch"
 lunch "$lunchconfig" && make -j$((2*$(nproc)))
