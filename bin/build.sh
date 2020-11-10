@@ -39,7 +39,7 @@ check_required_files_result() {
     ls -lR "$PROJDIR/vendor"
     exit 2
   else
-    echo "Seems OK"
+    echo "Required files seem to exist OK."
   fi
 }
 
@@ -143,14 +143,16 @@ case $AASIGDP_TARGET in
     check_required_files_result
     failed_prereqs=
 
-    cd "$inner_zip_dir"
-    builddir="$inner_zip_dir/mydroid" # Will be created by walkthrough
+    cd "$PROJDIR"
+    builddir="$(readlink -f "$inner_zip_dir/mydroid")" # (Dir created by walkthrough.sh)
+    echo "$builddir"
 
     # RENESAS' buildenv script fails silently if mydroid already exists
     # (for example if we run the build twice) Let's fix that.
     sed -i 's/mkdir/mkdir -p/' ./buildenv.sh
 
     export PATH="$PATH:$PROJDIR/bin"  # to find repo
+    cd "$PROJDIR/$inner_zip_dir"
     ./walkthrough.sh H3
     ;;
 
