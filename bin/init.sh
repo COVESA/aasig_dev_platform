@@ -17,7 +17,7 @@ REPO_SHA=d73f3885d717c1dc89eba0563433cec787486a0089b9b04b4e8c56e7c07c7610
 # LOG helpers
 section() {
   echo '========================================================================='
-  echo "build.sh, Section: $1"
+  echo "init.sh, section: $1"
   echo '========================================================================='
 }
 
@@ -59,8 +59,8 @@ case $AASIGDP_TARGET in
     flags=
     ;;
 
-  # RENESAS R-Car H3 starter-kit
-  h3ulcb)
+  # RENESAS R-Car H3 or M3 starter-kit, same steps:
+  ?3ulcb)
     section "Unset manifest/url/branch/flags ($AASIGDP_TARGET) because it is handled by delegate scripts"
     # This is all controlled by the provided RENESAS scripts
     manifest=
@@ -68,20 +68,14 @@ case $AASIGDP_TARGET in
     branch=
     flags=
     section "Check main BSP file exists ($AASIGDP_TARGET)"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
+    outer_zip_name=REE-EG_Android-10-2020_03E-v10_1.2_H3
+    inner_zip_name=RENESAS_RCH3M3M3N_Android_10_ReleaseNote_2020_03E
+    required_file "vendor/renesas/$outer_zip_name.zip"
+
     # Link the unique build results path for convenience
     section "Create build_result symlink ($AASIGDP_TARGET)"
-    rm -f build_result  # (if exists)
-    ln -s "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E/mydroid/out/target/product/kingfisher" "$PROJDIR/build_result"
-    ;;
-
-  # RENESAS R-Car M3 starter-kit
-  m3ulcb)
-    section "TBD ($AASIGDP_TARGET)"
-    # This is all controlled by the provided RENESAS scripts
-    manifest=TBD
-    export TARGET_BOARD_PLATFORM=r8a7796
-    # (M3N: TARGET_BOARD_PLATFORM=r8a77965)
+    rm -f "$PROJDIR/build_result"  # (if exists)
+    ln -s "$PROJDIR/vendor/renesas/$outer_zip_name/source/bsp/$inner_zip_name/mydroid/out/target/product/kingfisher" "$PROJDIR/build_result"
     ;;
 
   hikey960)
@@ -166,61 +160,64 @@ case $AASIGDP_TARGET in
   h3ulcb)
   section "Unpack and check all BSP files ($AASIGDP_TARGET)"
     cd $PROJDIR/vendor/renesas
-    pkg="REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
+    pkg="$outer_zip_name.zip" # REE-EG_Android-<version>...etc.
     echo "Unpacking $pkg"
     unzip -o "$pkg"
 
     # Sanity check results:
 
     failed_prereqs=
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
+    # inner_zip_name = RENESAS_RCH3M3M3N_Android_<version>_ReleaseNote_...
+    required_file "vendor/renesas/$outer_zip_name/source/bsp/$inner_zip_name.zip"
     check_required_files_result
 
     # For H3:
     failed_prereqs=
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/gfx/RCH3G001A9001ZDO_1_1_0.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/gfx/RTM0RC7795GQGG0001SA90C_1_1_0.zip"
-    # For M3: RCM3G001A9001ZDO_1_1_0.zip
-    # For M3: RTM0RC7796GQGG0001SA90C_1_1_0.zip
-    # For M3N: RCN3G001A9001ZDO_1_1_0.zip
-    # For M3N: RTM0RC7796GQGGB001SA90C_1_1_0.zip
 
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHFWN0203ZDP_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHIFA9001ZDP_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHPDA9001ZDO_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/adsp/RCG3AHPLN0203ZDO_1_0_16.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RCG3VUDRA9001ZDO_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XCMCTL30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV263D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV264D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV264E30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XV265D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVCMND30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVCMNE30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVM4VD30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVVP8D30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVVP8E30SA90C_3_0_19.zip"
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/omx/RTM0AC0000XVVP9D30SA90C_3_0_19.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/gfx/RCH3G001A1001ZDO_1_0_2.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/gfx/RTM8RC7795ZGG00Q00JPAQE_1_0_2.zip"
+    #For M3: RCM3G001A1001ZDO_1_0_2.zip
+    #For M3: RTM8RC7796ZGG00Q00JPAQE_1_0_2.zip
+    #For M3N: RCN3G001A1001ZDO_1_0_2.zip
+    #For M3N: RTM8RC7796ZGG00Q50JPAQE_1_0_2.zip
+
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMD0LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMD1LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMD2LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMD3LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMD4LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMD8LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMD9LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMDALQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZME0LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZME1LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZME8LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMX0DQ00JFAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/omx/RTM8RC0000ZMX0LQ00JPAQE_3_0_22.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/adsp/RTM8RC0000ZNA1SS00JFAQE_1_0_17.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/adsp/RTM8RC0000ZNA2DS00JFAQE_1_0_17.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/adsp/RTM8RC0000ZNA3SS00JFAQE_1_0_17.zip"
+    required_file "vendor/renesas/$outer_zip_name/source/proprietary/adsp/RTM8RC0000ZNA4SS00JFAQE_1_0_17.zip"
 
     check_required_files_result
     failed_prereqs=
 
-    cd "$PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/bsp"
-    pkg="RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
+    cd "$PROJDIR/vendor/renesas/$outer_zip_name/source/bsp"
+    pkg="$inner_zip_name.zip"
     echo "Unzipping inner package: $pkg"
     unzip -o "$pkg"
 
     section "Restructure files into pkgs_dir according to instructions"
     # Restructure according to the instructions of the Renesas documentation:
-    cd RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E || {
-       echo failed to cd to RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E
+    cd $inner_zip_name || {
+       echo failed to cd to $inner_zip_name
        exit 4
     }
     rm -rf pkgs_dir
     mkdir pkgs_dir
-    mv -f $PROJDIR/vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3/source/proprietary/{omx,adsp,gfx} pkgs_dir/
+    mv -f $PROJDIR/vendor/renesas/$outer_zip_name/source/proprietary/{omx,adsp,gfx} pkgs_dir/
 
-    echo "RENESAS: Source code fetching (repo sync) will be done in build script"
+    echo "NOTE: For R-Car target, source code fetch (repo sync) will be done in build script instead"
     section "Results of pkgs_dir ($PWD/pkgs_dir)"
     ls pkgs_dir
     cd -
@@ -245,3 +242,4 @@ case $AASIGDP_TARGET in
     ;;
 esac
 
+section "INIT script is done."

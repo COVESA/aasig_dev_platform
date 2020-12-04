@@ -52,11 +52,14 @@ case $AASIGDP_TARGET in
     required_file "vendor/nxp/imx-p9.0.0_2.3.0.tar.gz"
     lunchconfig=mek_8q-userdebug
     ;;
-  # RENESAS R-Car M3 starter-kit
+  # RENESAS R-Car H3 starter-kit
   h3ulcb)
     section "Set lunchconfig and env variables ($AASIGDP_TARGET)"
     # This was checked in init, but no harm checking again (fail early)
-    required_file "vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3.zip"
+    outer_zip_name=REE-EG_Android-10-2020_03E-v10_1.2_H3
+    inner_zip_name=RENESAS_RCH3M3M3N_Android_10_ReleaseNote_2020_03E
+    required_file "vendor/renesas/$outer_zip_name.zip"
+
     lunchconfig=kingfisher-userdebug
 
     # For the later build steps:
@@ -115,45 +118,45 @@ case $AASIGDP_TARGET in
 
     # For H3, a few checks of unpacked files...
     failed_prereqs=
-    outer_zip_dir="vendor/renesas/REE-EG_Android-P-2019_08E-v3.21.0_H3"
-    required_file "$outer_zip_dir/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E.zip"
+    outer_zip_dir="vendor/renesas/$outer_zip_name"
+    required_file "$outer_zip_dir/source/bsp/$inner_zip_name.zip"
 
     # ... but those files should also already be copied to pkgs_dir by init script
-    inner_zip_dir="$outer_zip_dir/source/bsp/RENESAS_RCH3M3M3N_Android_P_ReleaseNote_2019_08E"
+    inner_zip_dir="$outer_zip_dir/source/bsp/$inner_zip_name"
     pkgs_dir="$inner_zip_dir/pkgs_dir"
 
-    required_file "$pkgs_dir/gfx/RCH3G001A9001ZDO_1_1_0.zip"
-    required_file "$pkgs_dir/gfx/RTM0RC7795GQGG0001SA90C_1_1_0.zip"
-    required_file "$pkgs_dir/omx/RTM0AC0000XVVP8E30SA90C_3_0_19.zip"
-    # For M3: RCM3G001A9001ZDO_1_1_0.zip
-    # For M3: RTM0RC7796GQGG0001SA90C_1_1_0.zip
-    # For M3N: RCN3G001A9001ZDO_1_1_0.zip
-    # For M3N: RTM0RC7796GQGGB001SA90C_1_1_0.zip
-    required_file "$pkgs_dir/adsp/RCG3AHFWN0203ZDP_1_0_16.zip"
-    required_file "$pkgs_dir/adsp/RCG3AHIFA9001ZDP_1_0_16.zip"
-    required_file "$pkgs_dir/adsp/RCG3AHPDA9001ZDO_1_0_16.zip"
-    required_file "$pkgs_dir/adsp/RCG3AHPLN0203ZDO_1_0_16.zip"
-    required_file "$pkgs_dir/omx/RCG3VUDRA9001ZDO_3_0_19.zip"
-    required_file "$pkgs_dir/omx/RTM0AC0000XCMCTL30SA90C_3_0_19.zip"
-    required_file "$pkgs_dir/omx/RTM0AC0000XV263D30SA90C_3_0_19.zip"
-    required_file "$pkgs_dir/omx/RTM0AC0000XV264D30SA90C_3_0_19.zip"
-    required_file "$pkgs_dir/omx/RTM0AC0000XV264E30SA90C_3_0_19.zip"
-    required_file "$pkgs_dir/omx/RTM0AC0000XV265D30SA90C_3_0_19.zip"
+    required_file "$pkgs_dir/gfx/RCH3G001A1001ZDO_1_0_2.zip"  # H3
+    required_file "$pkgs_dir/gfx/RTM8RC7795ZGG00Q00JPAQE_1_0_2.zip"  # H3
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMD0LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMD1LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMD2LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMD3LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMD4LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMD8LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMD9LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMDALQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZME0LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZME1LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZME8LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMX0DQ00JFAQE_3_0_22.zip"
+    required_file "$pkgs_dir/omx/RTM8RC0000ZMX0LQ00JPAQE_3_0_22.zip"
+    required_file "$pkgs_dir/adsp/RTM8RC0000ZNA1SS00JFAQE_1_0_17.zip"
+    required_file "$pkgs_dir/adsp/RTM8RC0000ZNA2DS00JFAQE_1_0_17.zip"
+    required_file "$pkgs_dir/adsp/RTM8RC0000ZNA3SS00JFAQE_1_0_17.zip"
+    required_file "$pkgs_dir/adsp/RTM8RC0000ZNA4SS00JFAQE_1_0_17.zip"
 
+    required_file "$inner_zip_dir/buildenv.sh"
     check_required_files_result
     failed_prereqs=
 
-    cd "$PROJDIR"
-    builddir="$(readlink -f "$inner_zip_dir/mydroid")" # (Dir created by walkthrough.sh)
-    echo "$builddir"
-
+    cd "$PROJDIR/$inner_zip_dir"
     # RENESAS' buildenv script fails silently if mydroid already exists
     # (for example if we run the build twice) Let's fix that.
-    sed -i 's/mkdir/mkdir -p/' ./buildenv.sh
+    rm -rf "mydroid"  # In fact, it must not exist...
 
     export PATH="$PATH:$PROJDIR/bin"  # to find repo
-    cd "$PROJDIR/$inner_zip_dir"
     ./walkthrough.sh H3
+    builddir="$(readlink -f "./mydroid")" # (Will be created by walkthrough.sh)
     ;;
 
   # RENESAS R-Car M3 starter-kit
