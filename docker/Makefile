@@ -1,7 +1,6 @@
 IMAGE_NAME ?= localhost/aasig_dev_platform
 CONTAINER_NAME ?= aasigdp
 CONTAINER_HOSTNAME ?= aasigdev_container
-EXTERNAL_STORAGE = /optional/host/volume/here
 
 .PHONY: _reset build kill rm rmi
 
@@ -40,7 +39,7 @@ buildnew:
 
 # Run container (detached)
 run:
-	docker run -ti -h "${CONTAINER_HOSTNAME}" -d -v ${PWD}/..:/workdir -v "${EXTERNAL_STORAGE}:/tmp/FIXME" --name=${CONTAINER_NAME} ${IMAGE_NAME}:latest /bin/bash
+	docker run -ti -h "${CONTAINER_HOSTNAME}" -d -v ${PWD}/..:/workdir --name=${CONTAINER_NAME} ${IMAGE_NAME}:latest /bin/bash
 
 # Force remove container and image
 clean:  kill rm rmi
