@@ -1,8 +1,27 @@
 FROM ubuntu:18.04
 
 RUN apt-get update
-RUN apt-get install -y build-essential zlibc git curl python-wand python-crypto gnupg vim-tiny libncurses5-dev \
-                       unzip liblz4-tool wget m4 ccache flex bison zip bc
+
+# Standard package list from https://source.android.com/setup/build/initializing#setting-up-a-linux-build-environment
+RUN apt-get install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig
+
+# Renesas required additions, according to documentation
+RUN apt-get install -y python-wand python-crypto liblz4-tool
+
+# Other stuff I found missing in container base image, and/or convenience tools
+RUN apt-get install -y rsync libncurses5-dev wget m4 bc
+
+# Convenience tools for poking around inside container
+RUN apt-get install -y vim-tiny
+
+# With the latest version, repo seems to have included a python3 only statements
+# and will completely fail (not only warn) on python2
+# ... and later, the executable is expected to "python"
+# ... and then this means the relevant python libraries (crypto) must be found
+#     also in the python3 environment
+# Workaround:
+RUN apt-get install -y python3 python3-wand python3-crypto
+RUN cd /usr/bin && rm python && ln -s python3 python
 
 # The file rebuild_marker can be modified to force a (non-cache) rebuild
 # but only from this point (e.g. avoiding the long apt-get commands)
