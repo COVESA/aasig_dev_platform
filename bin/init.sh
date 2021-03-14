@@ -4,6 +4,13 @@
 cd "$(dirname "$0")"
 
 # Defaults
+ if [ -n "$1" ] ; then
+    CODE_VARIANT="$1"
+ fi
+ if [ -n "$2" ] ; then
+    AASIGDP_TARGET="$2"
+ fi
+
 
 #PROJDIR=/workdir
 PROJDIR=$PWD/..

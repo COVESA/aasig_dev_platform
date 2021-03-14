@@ -4,10 +4,6 @@ CONTAINER_HOSTNAME ?= aasigdev_container
 
 .PHONY: _reset build kill rm rmi
 
-ifndef AASIGDP_TARGET
-   $(error "Please define $$AASIGDP_TARGET first (h3ulcb,m3ulcb,imx8,hikey960,hikey970,...)")
-endif
-
 default:
 	@echo "make [build|buildnew|run|clean|logs|shell|stop|kill|rm|rmi]"
 	@echo "(Note: build means only to build the container, not to start the android build)"
@@ -22,7 +18,7 @@ default:
 build: 
 	cp -r ../bin .
 	cp -r ../vendor/* vendor/
-	docker build --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest .
+	docker build --tag=${IMAGE_NAME}:latest .
 
 # Modify build marker, this will invalidate any cached steps after its use
 _reset:
@@ -35,7 +31,7 @@ rebuild: _reset build
 buildnew:
 	cp -r ../bin .
 	cp -r ../vendor/* vendor/
-	docker build --no-cache --build-arg AASIGDP_TARGET=$$AASIGDP_TARGET --tag=${IMAGE_NAME}:latest .
+	docker build --no-cache --tag=${IMAGE_NAME}:latest .
 
 # Run container (detached)
 run:

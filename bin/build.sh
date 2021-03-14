@@ -1,12 +1,25 @@
 #!/bin/bash
 
+# Defaults
+lunchconfig=hikey960-userdebug
+
+ if [ -n "$1" ] ; then
+    CODE_VARIANT="$1"
+ fi
+ if [ -n "$2" ] ; then
+    AASIGDP_TARGET="$2"
+ fi
+
 # Start from bin dir
 cd "$(dirname "$0")"
 MYDIR="$PWD"
 PROJDIR="$MYDIR/.."
 
-# Defaults
-lunchconfig=hikey960-userdebug
+lunch_name() {
+  target=$1
+  variant=$2
+  echo "genivi_${variant}_${target}"
+}
 
 # LOG helpers
 section() {
@@ -52,6 +65,7 @@ case $AASIGDP_TARGET in
     required_file "vendor/nxp/imx-p9.0.0_2.3.0.tar.gz"
     lunchconfig=mek_8q-userdebug
     ;;
+
   # RENESAS R-Car H3 starter-kit
   h3ulcb)
     section "Set lunchconfig and env variables ($AASIGDP_TARGET)"
@@ -60,7 +74,7 @@ case $AASIGDP_TARGET in
     inner_zip_name=RENESAS_RCH3M3M3N_Android_10_ReleaseNote_2020_03E
     required_file "vendor/renesas/$outer_zip_name.zip"
 
-    lunchconfig=kingfisher-userdebug
+    lunchconfig=$(lunch_name $PRODUCT_NAME kingfisher)
 
     # For the later build steps:
     export TARGET_BOARD_PLATFORM=r8a7795  # H3
@@ -72,16 +86,16 @@ case $AASIGDP_TARGET in
   # RENESAS R-Car M3 starter-kit
   m3ulcb)
     section "Set lunchconfig ($AASIGDP_TARGET)"
-    lunchconfig=TBD
+    lunchconfig=$(lunch_name $PRODUCT_NAME kingfisher)
     ;;
   hikey960)
     section "Set lunchconfig ($AASIGDP_TARGET)"
-    lunchconfig=hikey960-userdebug
+    lunchconfig=$(lunch_name $PRODUCT_NAME hikey960)
     ;;
   hikey970)
     section "Set lunchconfig ($AASIGDP_TARGET)"
     echo UNTESTED
-    lunchconfig=hikey970-userdebug
+    lunchconfig=$(lunch_name $PRODUCT_NAME hikey970)
     ;;
   *)
     fail_target
@@ -184,6 +198,23 @@ esac
 
 check_required_files_result
 
+# ---------------------------------------------------
+# Add unique functionality from AA-SIG working groups
+# ---------------------------------------------------
+
+cd "$builddir"
+git clone https://github.com/GENIVI/aasig_local_manifests .repo/local_manifests
+
+# New repo sync to fetch content described in local manifests
+repo sync
+
+# ---------------------------------------------------
+# AOSP STANDARD BUILD SECTION
+# ---------------------------------------------------
+
+# From here on everything is set up regarding sources, etc.
+# These steps should be common for all hardware targets
+
 # Set up and build
 # Not using -x flag because it lists everything in the called
 # scripts as well (envsetup, lunch, ... they are all scripts)
@@ -198,12 +229,18 @@ lunch "$lunchconfig" && make -j$((2*$(nproc)))
 r=$?
 set +x
 
-# Additional modifications:
+# -----------------------------------------------------
+# Post-build modifications and patches
+# -----------------------------------------------------
+
+# If there are any additional target-specific tweaks to
+# do _after_ the standard AOSP build:
+
 case $AASIGDP_TARGET in
    hikey960)
      section "Post-build modifications $(AASIGDP_TARGET) -- new kernel"
     # Replacing kernel with Android Generic Kernel Image (GKI), according to
-    # instructions: https://source.android.com/setup/build/devices  
+    # instructions: https://source.android.com/setup/build/devices
 
     set -x
     cd "$builddir"
