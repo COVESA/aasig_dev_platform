@@ -1,0 +1,114 @@
+<paf_config>
+
+    <!--Predefined PAF parameters for connection to the local system-->
+    <!--They are used only if you are using the SSHLocalCLient class.-->
+    <param name="LOCAL_HOST_IP_ADDRESS" value="127.0.0.1"/>
+    <param name="LOCAL_HOST_USER_NAME" value="vladyslav_goncharuk"/>
+    <param name="LOCAL_HOST_SYSTEM_SSH_KEY" value="/home/vladyslav_goncharuk/.ssh/id_rsa"/>
+    <!-- Better not to use password parameter. Use RSA instead. Still, it is supported. -->
+    <!-- <param name="LOCAL_HOST_SYSTEM_PASSWORD" value="xyz"/> -->
+
+    <!--Root level directories-->
+    <param name="ROOT" value="~/Projects"/>
+    <param name="LINUX_DEPLOYMENT_DIR" value="linux_deployment"/>
+
+    <!--Project sub-directories-->
+    <param name="DOWNLOAD_DIR" value="download"/>
+    <param name="SOURCE_DIR" value="source"/>
+    <param name="BUILD_DIR" value="build"/>
+    <param name="DEPLOY_DIR" value="deploy"/>
+
+    <!--System architecture parameters-->
+    <param name="ARM_COMPILER" value="arm-linux-gnueabi"/>
+    <param name="ARM64_COMPILER" value="aarch64-linux-gnu"/>
+    <param name="ARM_MACHINE_TYPE" value="vexpress-a9"/>
+    <param name="ARM64_MACHINE_TYPE" value="virt"/>
+    <param name="ARM_COMPILER_PATH" value="/usr/arm-linux-gnueabi"/>
+    <param name="ARM64_COMPILER_PATH" value="/usr/arm-linux-gnueabi"/>
+    <!--Expected values are = ARM and ARM64-->
+    <param name="ARCH_TYPE" value="ARM64"/>
+
+    <!--Build system parameters-->
+    <param name="BUILD_SYSTEM_CORES_NUMBER" value="16"/>
+
+    <phase name="system_prepare">
+        <task name="linux_deployment.general.prepare_directories"/>
+        <task name="linux_deployment.general.install_dependencies"/>
+    </phase>
+
+    <!--U-boot parameters-->
+    <param name="UBOOT_CONFIG_TARGET_ARM" value="vexpress_ca9x4_defconfig"/>
+    <param name="UBOOT_CONFIG_TARGET_ARM64" value="qemu_arm64_defconfig"/>
+    <param name="UBOOT_GIT_REFERENCE" value="git@github.com:u-boot/u-boot.git"/>
+    <param name="UBOOT_FOLDER_NAME" value="u-boot"/>
+
+    <phase name="uboot_deploy">
+        <task name="linux_deployment.uboot.uboot_sync"/>
+        <task name="linux_deployment.uboot.uboot_clean">
+            <condition name="UBOOT_CLEAN" value="True"/>
+        </task>
+        <task name="linux_deployment.uboot.uboot_configure"/>
+        <task name="linux_deployment.uboot.uboot_build"/>
+        <task name="linux_deployment.uboot.uboot_deploy"/>
+        <task name="linux_deployment.uboot.uboot_run_on_qemu">
+            <condition name="UBOOT_RUN_ON_QEMU" value="True"/>
+        </task>
+    </phase>
+
+    <!--Linux kernel parameters-->
+    <param name="LINUX_KERNEL_FOLDER_NAME" value="linux-stable"/>
+    <param name="LINUX_KERNEL_GIT_REFERENCE" value="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"/>
+    <param name="LINUX_KERNEL_CONFIG_TARGET_ARM" value="vexpress_defconfig"/>
+    <param name="LINUX_KERNEL_CONFIG_TARGET_ARM64" value="defconfig"/>
+    <!--<param name="LINUX_KERNEL_CONFIG_FLAGS" value="CONFIG_HAVE_DYNAMIC_FTRACE=n|CONFIG_FTRACE=n"/>-->
+    <!--Expected values are = PARAMETERS_ONLY or USER_INTERACTIVE-->
+    <param name="LINUX_KERNEL_CONFIG_ADJUSTMENT_MODE" value="PARAMETERS_ONLY"/>
+    <!--Expected values are = any valid targets. We have specific logic for some of them-->
+    <param name="LINUX_KERNEL_BUILD_TARGETS" value="all"/>
+    <param name="LINUX_KERNEL_VERSION" value="5.14.13"/>
+    <!--Expected values are = GIT or cdn.kernel.org-->
+    <param name="LINUX_KERNEL_SOURCE" value="git"/>
+    <param name="LINUX_KERNEL_DTB_LOCATION_ARM" value="dts/vexpress-v2p-ca9.dtb"/>
+
+    <phase name="linux_kernel_deploy">
+        <task name="linux_deployment.linux_kernel.linux_kernel_sync"/>
+        <task name="linux_deployment.linux_kernel.linux_kernel_clean">
+            <condition name="LINUX_KERNEL_CLEAN" value="True"/>
+        </task>
+        <task name="linux_deployment.linux_kernel.linux_kernel_configure"/>
+        <task name="linux_deployment.linux_kernel.linux_kernel_build"/>
+        <task name="linux_deployment.linux_kernel.linux_kernel_deploy"/>
+        <task name="linux_deployment.linux_kernel.linux_kernel_run_on_qemu">
+            <condition name="LINUX_KERNEL_RUN_ON_QEMU" value="True"/>
+        </task>
+    </phase>
+
+    <!--Busybox parameters-->
+    <param name="BUSYBOX_FOLDER_NAME" value="busybox"/>
+    <param name="BUSYBOX_VERSION" value="1.34.1"/>
+    <param name="BUSYBOX_CONFIG_TARGET" value="defconfig"/>
+    <param name="BUSYBOX_BUILD_TARGET" value="all"/>
+    <param name="BUSYBOX_CONFIG_FLAGS" value="CONFIG_STATIC=y"/>
+    <!--Expected values are = PARAMETERS_ONLY or USER_INTERACTIVE-->
+    <param name="BUSYBOX_CONFIG_ADJUSTMENT_MODE" value="PARAMETERS_ONLY"/>
+
+    <phase name="busybox_deploy">
+        <task name="linux_deployment.busybox.busybox_sync"/>
+        <task name="linux_deployment.busybox.busybox_clean">
+            <condition name="BUSYBOX_CLEAN" value="True"/>
+        </task>
+        <task name="linux_deployment.busybox.busybox_configure"/>
+        <task name="linux_deployment.busybox.busybox_build"/>
+        <task name="linux_deployment.busybox.busybox_deploy"/>
+        <task name="linux_deployment.busybox.busybox_run_on_qemu">
+            <condition name="BUSYBOX_RUN_ON_QEMU" value="True"/>
+        </task>
+    </phase>
+
+    <scenario name="boot_image_deploy">
+        <phase name="system_prepare"/>
+        <phase name="uboot_deploy"/>
+        <phase name="linux_kernel_deploy"/>
+        <phase name="busybox_deploy"/>
+    </scenario>
+</paf_config>

@@ -1,0 +1,155 @@
+<paf_config>
+
+    <!--======================-->
+    <!--ROOT LEVEL DIRECTORIES-->
+    <!--======================-->
+
+    <param name="ROOT" value="/mnt"/>
+    <param name="ANDROID_DEPLOYMENT_DIR" value="android"/>
+
+    <!--=======================-->
+    <!--PROJECT SUB-DIRECTORIES-->
+    <!--=======================-->
+
+    <param name="DOWNLOAD_DIR" value="download"/>
+    <param name="SOURCE_DIR" value="source"/>
+    <param name="BUILD_DIR" value="build"/>
+    <param name="DEPLOY_DIR" value="deploy"/>
+
+    <!--========================-->
+    <!--BUILD ANDROID PARAMETERS-->
+    <!--========================-->
+
+    <param name="REPO_TOOL_SUB_DIR" value="repo"/>
+    <param name="ANDROID_REPO_URL" value="https://android.googlesource.com/platform/manifest"/>
+    <param name="ANDROID_REPO_BRANCH" value="android-12.0.0_r13"/>
+
+    <!-- Use this one to work with the goldfish emulator -->
+    <!-- <param name="ANDROID_LUNCH_CONFIG" value="sdk_car_x86_64-userdebug"/> -->
+    <!-- Use this one to work with the cuttlefish emulator -->
+    <!-- <param name="ANDROID_LUNCH_CONFIG" value="aosp_cf_x86_auto-userdebug"/> -->
+    <!-- Custom lunch config -->
+    <param name="ANDROID_LUNCH_CONFIG" value="device_calculator_x86_64-userdebug"/>
+
+    <param name="ANDROID_MANIFEST" value=""/>
+    <param name="ANDROID_LOCAL_MANIFESTS_GIT_URL" value="git@gitbud.epam.com:epmp-aos/android-hal-calculator-local-manifest.git"/>
+
+    <!-- If LOCAL_VENDOR_DESTINATION_PATH && LOCAL_VENDOR_SOURCE_PATH are not empty, then the automation script will try to -->
+    <!-- copy the content of the LOCAL_VENDOR_SOURCE_PATH folder into the <android_source_root>/LOCAL_VENDOR_DESTINATION_PATH location. -->
+    <!-- <param name="LOCAL_VENDOR_DESTINATION_PATH" value="device/epam/aosp-vhal"/> -->
+    <!-- <param name="LOCAL_VENDOR_SOURCE_PATH" value="/home/vladyslav_goncharuk/Projects/epam/aosp-vhal"/> -->
+
+   <!-- This cli command will be executed after the "repo sync" -->
+   <!-- <param name="PATCH_AFTER_REPO_SYNC_HOOK" value="cd ${ROOT}/${ANDROID_DEPLOYMENT_DIR}/${SOURCE_DIR}/${ANDROID_REPO_BRANCH}/external/boost; ln -sf ../../device/epam/aosp-vhal/vehicle/boost-1_72_0.bp Android.bp;"/> -->
+
+    <!--=====================-->
+    <!--CUTTLEFISH PARAMETERS-->
+    <!--=====================-->
+
+    <param name="CUTTLEFISH_SUB_DIR" value="android-cuttlefish"/>
+    <param name="DOCKER_GPG_KEY_URL" value="https://download.docker.com/linux/ubuntu/gpg"/>
+    <param name="CUTTLEFISH_GIT_URL" value="https://github.com/google/android-cuttlefish"/>
+
+    <!--How to fill in ANDROID_PRODUCT_OUT & ANDROID_HOST_OUT parameters?-->
+    <!--Go to https://ci.android.com/.-->
+    <!--Select any specific aosp_cf_x86_64_phone artifacts build and download the following artifacts:-->
+    <!--- aosp_cf_x86_64_phone-img-xxxxxxx.zip-->
+    <!--- cvd-host_package.tar.gz -->
+    <!--Place cvd-host_package.tar.gz to any folder and specify it as the ANDROID_HOST_OUT, without unpacking the archive.-->
+    <!--Place aosp_cf_x86_64_phone-img-xxxxxxx.zip to any folder, unpack it, and specify as ANDROID_PRODUCT_OUT-->
+    <!--Unfortunately it is quite hard to automate this download. So, currently it is a TODO task!-->
+    <!--As an alternative, you can specify the folders of the manually built AOSP:-->
+    <!--ANDROID_PRODUCT_OUT=/android_source_root_folder/out/target/product/vsoc_x86-->
+    <!--ANDROID_HOST_OUT=/android_source_root_folder/out/host/linux-x86-->
+    <!-- <param name="ANDROID_PRODUCT_OUT" value="/home/vladyslav_goncharuk/Projects/cf"/> -->
+    <!-- <param name="ANDROID_HOST_OUT" value="/home/vladyslav_goncharuk/Projects/cf"/> -->
+
+    <param name="CUTTLEFISH_DOCKER_CONTAINER_NAME" value="test_aosp_cuttlefish"/>
+    <param name="CUTTLEFISH_PARAMS" value="--cpus=4 --memory_mb=8192 --verbosity=VERBOSE"/>
+
+    <!--=======================-->
+    <!--BUILD SYSTEM PARAMETERS-->
+    <!--=======================-->
+
+    <param name="BUILD_SYSTEM_CORES_NUMBER" value="16"/>
+    <param name="REPO_SYNC_THREADS_NUMBER" value="1"/>
+    <param name="DPKG_SPECIFIC_AUTOMATION" value="True"/>
+
+    <!--===================-->
+    <!--EMULATOR PARAMETERS-->
+    <!--===================-->
+
+    <param name="WIPE_DATA" value="True"/>
+
+    <!--===========================-->
+    <!-- END OF PARAMETERS SECTION -->
+    <!--===========================-->
+
+    <!--========-->
+    <!-- PHASES -->
+    <!--========-->
+
+    <phase name="system_prepare">
+        <task name="aasig_dev_platform.general.prepare_directories"/>
+        <task name="aasig_dev_platform.general.install_dependencies">
+            <condition name="DPKG_SPECIFIC_AUTOMATION" value="True"/>
+        </task>
+    </phase>
+
+    <phase name="build_android">
+        <task name="aasig_dev_platform.build_android.android_init"/>
+        <task name="aasig_dev_platform.build_android.android_build"/>
+    </phase>
+
+    <phase name="run_android_goldfish">
+        <task name="aasig_dev_platform.build_android.android_run_emulator"/>
+    </phase>
+
+    <phase name="install_docker">
+        <task name="aasig_dev_platform.cuttlefish.cuttlefish_install_docker">
+             <condition name="DPKG_SPECIFIC_AUTOMATION" value="True"/>
+        </task>
+    </phase>
+
+    <phase name="run_android_cuttlefish">
+        <task name="aasig_dev_platform.cuttlefish.cuttlefish_sync"/>
+        <task name="aasig_dev_platform.cuttlefish.cuttlefish_build"/>
+        <task name="aasig_dev_platform.cuttlefish.cuttlefish_start"/>
+    </phase>
+
+    <phase name="stop_android_cuttlefish">
+        <task name="aasig_dev_platform.cuttlefish.cuttlefish_stop"/>
+    </phase>
+
+    <phase name="update_diagrams">
+        <task name="aasig_dev_platform.misc.update_diagrams"/>
+    </phase>
+
+    <!--===========-->
+    <!-- SCENARIOS -->
+    <!--===========-->
+
+    <scenario name="build_android">
+        <phase name="system_prepare"/>
+        <phase name="build_android"/>
+    </scenario>
+
+    <scenario name="run_android_goldfish">
+        <phase name="system_prepare"/>
+        <phase name="run_android_goldfish"/>
+    </scenario>
+
+    <scenario name="run_android_cuttlefish">
+        <phase name="system_prepare"/>
+        <phase name="run_android_cuttlefish"/>
+    </scenario>
+
+    <scenario name="stop_android_cuttlefish">
+        <phase name="stop_android_cuttlefish"/>
+    </scenario>
+
+    <scenario name="update_diagrams">
+        <phase name="update_diagrams"/>
+    </scenario>>
+
+</paf_config>

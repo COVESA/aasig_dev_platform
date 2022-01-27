@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">VSS Service</string>
-    <string name="vss_permission_group_a">Access Group A</string>
-    <string name="vss_permission_group_a_desc">Permission for properties from Group A</string>
-    <string name="vss_permission_group_b">Access Group B</string>
-    <string name="vss_permission_group_b_desc">Permission for properties from Group B</string>
-</resources>

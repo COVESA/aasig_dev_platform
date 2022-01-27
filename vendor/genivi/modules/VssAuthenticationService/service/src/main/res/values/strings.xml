@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">AuthenticationService</string>
-    <string name="dummy_permission_label">Read value of Dummy</string>
-    <string name="dummy_permission_description">Allows the application to read or subscribe for the value of Dummy</string>
-</resources>

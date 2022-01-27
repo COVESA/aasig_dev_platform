@@ -1,2 +1,0 @@
-include ':vss-sdk-lib', ':service', ':ExampleAppJava'
-rootProject.name='VssAuthenticationService'

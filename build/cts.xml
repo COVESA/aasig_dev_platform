@@ -1,0 +1,26 @@
+<paf_config>
+    <param name="ANDROID_REPO_BRANCH" value="android-cts-12.1_r1"/>
+    <param name="CTS_ARCHIVE_NAME" value="android-cts-12.1_r1-linux_x86-x86.zip"/>
+    <param name="CTS_DOWNLOAD_LINK" value="https://dl.google.com/dl/android/cts/android-cts-12.1_r1-linux_x86-x86.zip"/>
+    <param name="CTS_SUBDIR" value="CTS"/>
+
+    <phase name="execute_cts">
+        <task name="aasig_dev_platform.cts.cts_deploy"/>
+        <task name="aasig_dev_platform.build_android.android_run_emulator_non_blocking"/>
+        <task name="aasig_dev_platform.cts.cts_execute"/>
+    </phase>
+
+    <phase name="execute_cts_with_local_vendor">
+        <task name="aasig_dev_platform.build_android.android_build"/>
+        <task name="aasig_dev_platform.cts.cts_deploy"/>
+        <task name="aasig_dev_platform.build_android.android_run_emulator_non_blocking"/>
+        <task name="aasig_dev_platform.cts.cts_execute"/>
+    </phase>
+
+    <scenario name="execute_cts">
+        <phase name="system_prepare"/>
+        <phase name="build_android"/>
+        <phase name="execute_cts"/>
+    </scenario>>
+
+</paf_config>
